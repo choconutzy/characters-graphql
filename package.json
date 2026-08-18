@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@apollo/client": "^4.2.12",
+    "apollo-server-micro": "^3.13.0",
+    "graphql": "^16.14.2",
+    "graphql-tag": "^2.12.7",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
