@@ -1,4 +1,4 @@
-'use-client'
+"use client"
 import { ICharacter, ILocationResp } from "@/types";
 import { useQuery } from "@apollo/client/react";
 import gql from "graphql-tag";
@@ -69,7 +69,7 @@ export default function Locations(){
               return (
                 <tr key={idx}>
                   <td>{char.name}</td>
-                  <td><Image loading="lazy" src={char.image} alt={char.name} width={30} height={50}/></td>
+                  <td><Image loading="eager" src={char.image} alt={char.name} width={30} height={50} unoptimized fill/></td>
                   <td>{char.gender}</td>
                   <td>{char.species}</td>
                   <td>{char.type}</td>

@@ -1,4 +1,4 @@
-'use client';
+"use client"
 import { useParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useQuery } from "@apollo/client/react";
 import gql from "graphql-tag";
 import { ICharacterResp } from "@/types";
+import { decryptId } from "@/lib/idCrypto";
 
 const GET_CHAR_BY_ID = gql`
   query GetCharacterById($id:ID!) {
@@ -50,15 +51,16 @@ function readAssignments(): Record<string, string> {
 
 export default function Character(){
   const params = useParams<{ id: string }>()
+  const characterId = decryptId(params.id);
   const [locationName, setLocationName] = useState("");
   const [assignmentMap, setAssignmentMap] = useState<Record<string, string>>(() => readAssignments());
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error">("success");
   const { data, loading, error } = useQuery<ICharacterResp>(GET_CHAR_BY_ID, { 
-    variables: { id: params.id },
+    variables: { id: characterId },
   });
 
-  const assignedLocation = assignmentMap[params.id] ?? readAssignments()[params.id] ?? null;
+  const assignedLocation = assignmentMap[characterId] ?? readAssignments()[characterId] ?? null;
 
   function assignLocation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,7 +92,7 @@ export default function Character(){
       (location) => location.toLowerCase() === name.toLowerCase(),
     );
     const canonicalName = existingLocation ?? name;
-    assignments[params.id] = canonicalName;
+    assignments[characterId] = canonicalName;
     localStorage.setItem("character-location-assignments", JSON.stringify(assignments));
     if (data?.character) {
       const storedCharacters = localStorage.getItem("character-location-details");
@@ -102,7 +104,7 @@ export default function Character(){
           characterDetails = {};
         }
       }
-      characterDetails[params.id] = data.character;
+      characterDetails[characterId] = data.character;
       localStorage.setItem("character-location-details", JSON.stringify(characterDetails));
     }
     setAssignmentMap(assignments);
@@ -124,7 +126,7 @@ export default function Character(){
 
         <section className="mx-auto mt-6 grid max-w-5xl gap-6 lg:grid-cols-[280px_1fr]">
           <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-2xl shadow-black/30">
-            <Image loading="lazy" unoptimized fill src={data.character.image} alt={data.character.name} className="object-cover" sizes="280px" />
+            <Image loading="eager" unoptimized fill src={data.character.image} alt={data.character.name} className="object-cover" sizes="280px" />
           </div>
           <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 sm:p-8">
             <div className="mb-6 flex flex-wrap gap-2">
@@ -135,7 +137,7 @@ export default function Character(){
             <dl className="grid grid-cols-2 gap-5 text-sm">
               <div><dt className="text-slate-400">Type</dt><dd className="mt-1 font-semibold">{data.character.type || "Unknown"}</dd></div>
               <div><dt className="text-slate-400">Origin</dt><dd className="mt-1 font-semibold">{data.character.origin?.name || "Unknown"}</dd></div>
-              <div><dt className="text-slate-400">Current location</dt><dd className="mt-1 font-semibold">{data.character.location?.name || "Unknown"}</dd></div>
+              {/* <div><dt className="text-slate-400">Current location</dt><dd className="mt-1 font-semibold">{data.character.location?.name || "Unknown"}</dd></div> */}
             </dl>
           </div>
         </section>

@@ -6,6 +6,7 @@ import gql from "graphql-tag";
 import { ICharacter, ICharResp } from "@/types";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { encryptId } from "@/lib/idCrypto";
 
 
 const GET_CHAR = gql`
@@ -127,7 +128,7 @@ export default function Home() {
       {characters.length > 0 && (
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {characters.map((character: ICharacter) => (
-            <Link key={character.id} href={`/detail-char/${character.id}`} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-lg shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-cyan-300/50 hover:bg-white/[0.12] hover:shadow-cyan-950/50">
+            <Link key={character.id} href={`/detail-char/${encryptId(character.id)}`} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-lg shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-cyan-300/50 hover:bg-white/[0.12] hover:shadow-cyan-950/50">
               <div className="relative aspect-square overflow-hidden bg-slate-800">
                 <Image loading="eager" unoptimized fill src={character.image} alt={character.name} className="object-cover transition duration-500 group-hover:scale-110" sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />

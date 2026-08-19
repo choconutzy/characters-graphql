@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { encryptId } from "@/lib/idCrypto";
 
 interface AssignedCharacter {
   id: number;
@@ -14,6 +15,7 @@ interface AssignedCharacter {
 }
 
 function readLocationData() {
+  if (typeof window === "undefined") return {};
   const assignments = JSON.parse(window.localStorage.getItem("character-location-assignments") ?? "{}");
   const details = JSON.parse(window.localStorage.getItem("character-location-details") ?? "{}");
   const grouped: Record<string, AssignedCharacter[]> = {};
@@ -29,9 +31,11 @@ function readLocationData() {
 }
 
 export default function LocationsPage() {
-  const initialLocationData = readLocationData();
-  const [locationData, setLocationData] = useState<Record<string, AssignedCharacter[]>>(initialLocationData);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(() => Object.keys(initialLocationData)[0] ?? null);
+  const [locationData, setLocationData] = useState<Record<string, AssignedCharacter[]>>((): Record<string, AssignedCharacter[]> => readLocationData());
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(() => {
+    const init = readLocationData();
+    return Object.keys(init)[0] ?? null;
+  });
 
   function refreshLocations() {
     try {
@@ -91,7 +95,7 @@ export default function LocationsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
               {characters.map((character) => (
-                <Link key={character.id} href={`/detail-char/${character.id}`} className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 transition hover:-translate-y-1 hover:border-cyan-300/50">
+                <Link key={character.id} href={`/detail-char/${encryptId(character.id)}`} className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 transition hover:-translate-y-1 hover:border-cyan-300/50">
                   <div className="relative aspect-square bg-slate-800">
                     {character.image && <Image unoptimized fill src={character.image} alt={character.name} className="object-cover transition duration-500 group-hover:scale-110" sizes="(max-width: 640px) 50vw, 20vw" />}
                   </div>
