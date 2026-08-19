@@ -14,8 +14,8 @@ interface AssignedCharacter {
 }
 
 function readLocationData() {
-  const assignments = JSON.parse(localStorage.getItem("character-location-assignments") ?? "{}");
-  const details = JSON.parse(localStorage.getItem("character-location-details") ?? "{}");
+  const assignments = JSON.parse(window.localStorage.getItem("character-location-assignments") ?? "{}");
+  const details = JSON.parse(window.localStorage.getItem("character-location-details") ?? "{}");
   const grouped: Record<string, AssignedCharacter[]> = {};
 
   Object.entries(assignments as Record<string, string>).forEach(([id, location]) => {
@@ -29,14 +29,15 @@ function readLocationData() {
 }
 
 export default function LocationsPage() {
-  const [locationData, setLocationData] = useState<Record<string, AssignedCharacter[]>>({});
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const initialLocationData = readLocationData();
+  const [locationData, setLocationData] = useState<Record<string, AssignedCharacter[]>>(initialLocationData);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(() => Object.keys(initialLocationData)[0] ?? null);
 
   function refreshLocations() {
     try {
       const next = readLocationData();
       setLocationData(next);
-      setSelectedLocation((current) => current && next[current] ? current : Object.keys(next)[0] ?? null);
+      setSelectedLocation((current) => (current && next[current]) ? current : Object.keys(next)[0] ?? null);
     } catch {
       setLocationData({});
       setSelectedLocation(null);
@@ -44,7 +45,6 @@ export default function LocationsPage() {
   }
 
   useEffect(() => {
-    refreshLocations();
     window.addEventListener("storage", refreshLocations);
     return () => window.removeEventListener("storage", refreshLocations);
   }, []);
